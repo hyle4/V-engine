@@ -1,0 +1,12 @@
+schema_version = 1
+name = "{{project_name}}"
+subject = "General"
+ai_provider = "auto"
+ai_count = 8
+practice_mode = "all"
+locale = "en"
+show_project = true
+font = ""
+text_size = "md"
+reading_width = "standard"
+library_filters = []

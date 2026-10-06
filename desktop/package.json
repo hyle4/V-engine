@@ -1,0 +1,1 @@
+{"name":"vengine-desktop","private":true,"version":"0.3.0","scripts":{"tauri":"tauri"},"devDependencies":{"@tauri-apps/cli":"^2.8.0"}}

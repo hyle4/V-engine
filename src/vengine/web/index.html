@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark light" />
+    <title>V-engine · Practice</title>
+    <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <button class="wordmark" id="home" aria-label="Appearance" data-aria="appearance" aria-expanded="false" aria-controls="appearance" aria-haspopup="menu">
+          <span id="project-name">V<span class="point">·</span>engine</span>
+        </button>
+        <div id="appearance" class="appearance" role="menu" hidden></div>
+        <div class="identity">
+          <button id="prova" class="prova" hidden aria-expanded="false" aria-controls="picker" aria-haspopup="dialog"></button>
+          <div id="picker" class="picker" role="dialog" hidden></div>
+        </div>
+        <nav aria-label="Primary">
+          <button data-view="practice" class="nav active"><span class="nav-glyph" aria-hidden="true">✦</span><span class="nav-label" data-i18n="navPractice">Practice</span></button>
+          <button data-view="library" class="nav"><span class="nav-glyph" aria-hidden="true">✦</span><span class="nav-label" data-i18n="navLibrary">Library</span></button>
+          <button data-view="review" class="nav"><span class="nav-glyph" aria-hidden="true">✦</span><span class="nav-label" data-i18n="navReview">Review</span> <span id="review-count"></span>
+          </button>
+          <button data-view="import" class="nav"><span class="nav-glyph" aria-hidden="true">✦</span><span class="nav-label" data-i18n="navImport">Import</span></button>
+          <button data-view="settings" id="nav-project" class="nav"><span class="nav-glyph" aria-hidden="true">✦</span><span class="nav-label" data-i18n="navProject">Project</span></button>
+        </nav>
+        <button id="theme" class="quiet" aria-label="Toggle theme" hidden>◐</button>
+      </header>
+      <main id="main" tabindex="-1">
+        <p class="small">Loading workspace…</p>
+      </main>
+      <div id="status" class="sr-only" role="status" aria-live="polite"></div>
+    </div>
+    <dialog id="zoom" class="zoom" aria-labelledby="zoom-title">
+      <div class="zoom-bar">
+        <p id="zoom-title" class="zoom-title" data-i18n="zoomImage">Zoom image</p>
+        <button type="button" id="zoom-out" class="quiet" data-i18n="zoomOut">Zoom out</button>
+        <button type="button" id="zoom-in" class="quiet" data-i18n="zoomIn">Zoom in</button>
+        <button type="button" id="zoom-close" class="quiet" data-i18n="close">Close</button>
+      </div>
+      <div id="zoom-stage" class="zoom-stage">
+        <img id="zoom-image" alt="">
+      </div>
+    </dialog>
+    <script defer src="/static/app.js"></script>
+  </body>
+</html>

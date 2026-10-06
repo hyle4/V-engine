@@ -1,0 +1,57 @@
+[project]
+name = "vengine"
+version = "0.3.0"
+description = "A reusable, source-linked practice engine"
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "pydantic>=2.10,<3",
+  "uvicorn>=0.34,<1",
+  "pypdfium2>=4.30,<6",
+  "python-multipart>=0.0.20,<1",
+  "fsrs>=6,<7",
+  "pillow>=11,<13",
+]
+
+[project.optional-dependencies]
+documents = ["docling>=2,<4", "py7zr>=0.22,<2"]
+ai = ["google-genai>=1,<2"]
+dev = ["pytest>=8,<10", "httpx>=0.27,<1", "ruff>=0.11,<1"]
+
+[project.scripts]
+vengine = "vengine.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vengine"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src/vengine",
+  "/README.md",
+  "/LICENSE",
+  "/pyproject.toml",
+  "/AGENTS.md",
+  "/docs/AI_PROJECT_PLAYBOOK.md",
+  "/docs/ORIGINAL_EXAMS.md",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint.per-file-ignores]
+"src/vengine/jobs.py" = ["BLE001"]
+"src/vengine/runner.py" = ["BLE001", "S110"]
+"src/vengine/extract.py" = ["BLE001", "S110"]
+"src/vengine/ai.py" = ["BLE001", "S110"]
+"src/vengine/workers/python_worker.py" = ["S102", "BLE001"]
