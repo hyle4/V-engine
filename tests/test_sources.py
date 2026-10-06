@@ -73,6 +73,18 @@ def test_ai_samples_across_long_document(monkeypatch):
     assert {item.sources[0].page for item in items} == {1, 3, 4}
 
 
+def test_relative_source_path_resolves_inside_the_data_directory(tmp_path: Path):
+    store = Store(tmp_path / "data")
+    origin = tmp_path / "note.txt"
+    origin.write_text("hello\n")
+    saved = store.add_source(origin, "text/plain")
+    with store.connect() as db:
+        db.execute("UPDATE sources SET path=? WHERE id=?", (f"sources/{saved['sha256']}", saved["id"]))
+    loaded = store.source(saved["id"])
+    assert Path(loaded["path"]) == (tmp_path / "data" / "sources" / saved["sha256"]).resolve()
+    assert Path(loaded["path"]).read_text() == "hello\n"
+
+
 def test_open_response_self_assessment_schedules_review(tmp_path: Path):
     client = TestClient(create_app(tmp_path))
     item = client.post("/api/exercises", json={

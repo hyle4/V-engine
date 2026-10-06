@@ -153,7 +153,17 @@ class Store:
     def source(self, source_id: str) -> dict[str, Any] | None:
         with self.connect() as db:
             row = db.execute("SELECT * FROM sources WHERE id=?", (source_id,)).fetchone()
-            return dict(row) if row else None
+            return self._located_source(dict(row)) if row else None
+
+    def _located_source(self, item: dict[str, Any]) -> dict[str, Any]:
+        """Resolve a stored source path against this project's data directory."""
+        path = Path(item["path"])
+        portable = self.root / "sources" / item["sha256"]
+        if not path.is_absolute():
+            item["path"] = str((self.root / path).resolve())
+        elif not path.exists() and portable.exists():
+            item["path"] = str(portable.resolve())
+        return item
 
     def save_document(self, document: DocumentIR) -> None:
         with self.connect() as db:
