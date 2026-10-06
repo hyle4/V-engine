@@ -343,6 +343,9 @@ def create_app(root: Path, *, project_root: Path | None = None,
                             not in supported_formats()):
             raise HTTPException(422, "Answer key needs a supported file and originals mode")
         config = load_project(project_root) if project_root else None
+        from .project import refuses_import
+        if refuses_import(config, file.filename or ""):
+            raise HTTPException(422, "This project does not import that file")
         count = count if count is not None else (config.ai_count if config else 8)
         if not 1 <= count <= 30:
             raise HTTPException(400, "count must be between 1 and 30")
@@ -372,6 +375,10 @@ def create_app(root: Path, *, project_root: Path | None = None,
                         raise HTTPException(413, "Maximum upload size is 100 MB")
                     await run_in_threadpool(tmp.write, chunk)
                 tmp.close()
+                if suffix in {".json", ".txt", ".md", ".markdown", ".csv"}:
+                    sample = temp_path.read_text(encoding="utf-8", errors="replace")[:32768]
+                    if refuses_import(config, file.filename or "", sample):
+                        raise HTTPException(422, "This project does not import that file")
                 if answer_file:
                     answer_suffix = Path(answer_file.filename or "").suffix.lower()
                     with tempfile.NamedTemporaryFile(suffix=answer_suffix, prefix="vengine-key-",

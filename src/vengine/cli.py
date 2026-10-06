@@ -101,6 +101,12 @@ def main() -> None:
             bool(shutil.which("agy")) if provider == "agy" else provider in ai_provider_names()
         generate_ai = False if args.mode == "originals" else args.ai if args.ai is not None else bool(
             (args.provider or preferred != "none") and configured)
+        from .project import refuses_import
+        sample = ""
+        if args.path.suffix.lower() in {".json", ".txt", ".md", ".markdown", ".csv"}:
+            sample = args.path.read_text(encoding="utf-8", errors="replace")[:32768]
+        if refuses_import(config, f"{args.path.name} {args.title or ''}", sample):
+            parser.error("This project does not import that file")
         job = import_source(Store(data_root), args.path, generate_ai=generate_ai,
                             provider=provider, count=config.ai_count if config else args.count,
                             proposer=config.proposer if config else "builtin",

@@ -33,6 +33,7 @@ class ProjectConfig(BaseModel):
     text_size: Literal["xs", "sm", "md", "lg"] = "md"
     reading_width: Literal["narrow", "standard"] = "standard"
     library_filters: list[str] = Field(default_factory=list)
+    blocked_imports: list[str] = Field(default_factory=list)
 
     @field_validator("library_filters")
     @classmethod
@@ -47,9 +48,37 @@ class ProjectConfig(BaseModel):
             cleaned.append(text)
         return cleaned
 
+    @field_validator("blocked_imports")
+    @classmethod
+    def short_blocks(cls, values: list[str]) -> list[str]:
+        if len(values) > 24:
+            raise ValueError("too many blocked import names")
+        cleaned = []
+        for value in values:
+            text = value.strip()
+            if not text or len(text) > 40:
+                raise ValueError("blocked import name must be short")
+            cleaned.append(text)
+        return cleaned
+
 
 def config_path(project_root: Path) -> Path:
     return Path(project_root).resolve() / "vengine.toml"
+
+
+_LEETCODE_MARKERS = ("titleslug", "questionfrontendid", "leetcode.com")
+
+
+def refuses_import(config: ProjectConfig | None, label: str, sample: str = "") -> bool:
+    """True when a filename, title, or text sample names material this project does not take."""
+    if config is None or not config.blocked_imports:
+        return False
+    folded = f"{label}\n{sample}".casefold()
+    if any(pattern.casefold() in folded for pattern in config.blocked_imports):
+        return True
+    if any("leetcode" in pattern.casefold() for pattern in config.blocked_imports):
+        return any(marker in folded for marker in _LEETCODE_MARKERS)
+    return False
 
 
 def load_project(project_root: Path) -> ProjectConfig | None:
@@ -78,6 +107,7 @@ def save_project(project_root: Path, config: ProjectConfig) -> Path:
         f"text_size = {_toml_string(config.text_size)}\n"
         f"reading_width = {_toml_string(config.reading_width)}\n"
         f"library_filters = [{', '.join(_toml_string(item) for item in config.library_filters)}]\n"
+        f"blocked_imports = [{', '.join(_toml_string(item) for item in config.blocked_imports)}]\n"
     )
     fd, temporary = tempfile.mkstemp(prefix=".vengine-", suffix=".toml", dir=path.parent)
     try:

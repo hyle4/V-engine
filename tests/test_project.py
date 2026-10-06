@@ -40,6 +40,25 @@ def test_project_config_roundtrip_and_api(tmp_path: Path):
     assert load_project(tmp_path).name == 'A "quoted" name'
 
 
+def test_blocked_imports_refuse_leetcode_and_auditor_files(tmp_path: Path):
+    from vengine.project import refuses_import
+    config = ProjectConfig(
+        name="Diplomacy", subject="CACD", ai_provider="none",
+        blocked_imports=["leetcode", "leet code", "blind 75", "blind75", "auditor"])
+    assert refuses_import(config, "blind75.pdf")
+    assert refuses_import(config, "CESPE_2025_Auditor_Fiscal.pdf")
+    assert refuses_import(config, "problems.json", '[{"titleSlug": "two-sum"}]')
+    assert not refuses_import(config, "IRBR_17_DIPLOMACIA.pdf")
+    save_project(tmp_path, config)
+    client = TestClient(create_app(tmp_path / "data", project_root=tmp_path))
+    refused = client.post("/api/import", files={"file": (
+        "leetcode.json", b'[{"title": "Two Sum"}]', "application/json")})
+    assert refused.status_code == 422
+    accepted = client.post("/api/import", files={"file": (
+        "notes.txt", b"The capital is Paris.\n", "text/plain")})
+    assert accepted.status_code == 200
+
+
 def test_reader_settings_roundtrip(tmp_path: Path):
     config = ProjectConfig(
         name="Diplomacy", subject="CACD", ai_provider="none", show_project=False,
